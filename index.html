@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punctuation. / 标点</title>
+    <!-- 引入核心库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* 
+         * DESIGN SYSTEM: THE ABSOLUTE
+         * Philosophy: Reduction content-first, motion-driven.
+         */
+
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@300;500;700&display=swap');
+
+        :root {
+            /* 
+             * PALETTE
+             * We don't use "Blue" or "Red". We use Light and Absence.
+             */
+            --bg: #FAFAFA;
+            --surface: #FFFFFF;
+            --ink: #111111;
+            --ink-secondary: #666666;
+            --ink-tertiary: #AAAAAA;
+
+            --accent: #111111;
+            /* Brutalist Black */
+            --accent-soft: rgba(0, 0, 0, 0.04);
+
+            --line: #EAEAEA;
+            --radius-sm: 8px;
+            --radius-lg: 24px;
+
+            --font-serif: "Noto Serif SC", serif;
+            --font-mono: "JetBrains Mono", monospace;
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #050505;
+                --surface: #0A0A0A;
+                --ink: #EDEDED;
+                --ink-secondary: #888888;
+                --ink-tertiary: #444444;
+
+                --accent: #EDEDED;
+                --accent-soft: rgba(255, 255, 255, 0.06);
+
+                --line: #1F1F1F;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            background-color: var(--bg);
+            color: var(--ink);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.6s var(--ease-out-expo);
+        }
+
+        /* --- LAYOUT UTILS --- */
+        .wrapper {
+            flex: 1;
+            display: flex;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1 {
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            font-weight: 500;
+            color: var(--ink-secondary);
+            margin-bottom: 0;
+            /* Fixed: Removed large margin that blocked clicks */
+        }
+
+        .hero-text {
+            font-size: 3rem;
+            line-height: 1.2;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: slideUp 0.8s var(--ease-out-expo) 0.2s forwards;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: absolute;
+            top: 2rem;
+            left: 3rem;
+            right: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            pointer-events: none;
+            /* Let clicks pass through empty nav areas */
+        }
+
+        /* Re-enable pointer events for interactive children */
+        nav>* {
+            pointer-events: auto;
+        }
+
+
+        .mode-switcher {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .mode-btn {
+            background: none;
+            border: none;
+            color: var(--ink-tertiary);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+            padding-bottom: 4px;
+            border-bottom: 1px solid transparent;
+            transition: all 0.4s var(--ease-out-expo);
+        }
+
+        .mode-btn:hover {
+            color: var(--ink);
+        }
+
+        .mode-btn.active {
+            color: var(--ink);
+            border-bottom-color: var(--ink);
+        }
+
+        /* --- STAGE: SPLIT VIEW --- */
+        .stage {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pane-left,
+        .pane-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 8rem 3rem 3rem;
+            position: relative;
+            transition: transform 0.6s var(--ease-out-expo);
+        }
+
+        .pane-left {
+            border-right: 1px solid var(--line);
+        }
+
+        /* --- TEXT AREA (THE CANVAS) --- */
+        .input-area {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: var(--ink);
+            resize: none;
+            outline: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .input-area::placeholder {
+            color: var(--ink-tertiary);
+            font-weight: 300;
+        }
+
+        .input-area:focus {
+            opacity: 1;
+        }
+
+        .pane-label {
+            /* Removed absolute position to allow flex flow in header */
+            position: static;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--ink-tertiary);
+            letter-spacing: 0.05em;
+        }
+
+        .pane-header {
+            position: absolute;
+            top: 6rem;
+            left: 3rem;
+            right: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: none;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            padding: 4px 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--ink-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .copy-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .copy-btn:hover {
+            color: var(--ink);
+            border-color: var(--ink-secondary);
+        }
+
+        .copy-btn.copied {
+            background-color: var(--ink);
+            color: var(--bg);
+            border-color: var(--ink);
+        }
+
+        /* --- FILE UPLOAD (THE VOID) --- */
+        .file-drop {
+            display: none;
+            /* Toggled via JS */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg);
+            z-index: 20;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-drop.active {
+            display: flex;
+        }
+
+        .drop-target {
+            width: 400px;
+            height: 400px;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.6s var(--ease-out-expo);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .drop-target::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid var(--ink);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.6s var(--ease-out-expo);
+        }
+
+        .drop-target:hover::before,
+        .drop-target.dragging::before {
+            opacity: 0.1;
+            transform: scale(1.1);
+        }
+
+        .drop-label {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            margin-top: 1rem;
+            color: var(--ink-secondary);
+        }
+
+        .file-status {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            text-align: center;
+            min-height: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- 模糊背景层 --- */
+        .doc-preview-bg {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            line-height: 2;
+            color: var(--ink);
+            filter: blur(2px);
+            opacity: 0;
+            transition: opacity 1s var(--ease-out-expo);
+            pointer-events: none;
+            padding: 10% 15%;
+            text-align: justify;
+            word-break: break-all;
+            overflow: hidden;
+            max-height: 100%;
+            z-index: 1;
+        }
+
+        .doc-preview-bg.visible {
+            opacity: 0.18;
+        }
+
+        /* --- 统计数据 --- */
+        .convert-stats {
+            display: flex;
+            gap: 4rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.6s var(--ease-out-expo);
+        }
+
+        .convert-stats.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 1.75rem;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--ink-tertiary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* --- 进度环 --- */
+        .progress-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .progress-ring.visible {
+            opacity: 1;
+        }
+
+        .progress-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke: var(--ink);
+            stroke-width: 1;
+            stroke-linecap: round;
+            stroke-dasharray: 1256;
+            stroke-dashoffset: 1256;
+            transition: stroke-dashoffset 0.5s var(--ease-out-expo);
+        }
+
+        /* --- 完成状态 --- */
+        .drop-target.completed {
+            border-color: var(--ink);
+        }
+
+        .drop-target.completed .drop-icon {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .success-check {
+            position: absolute;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s var(--ease-out-expo);
+        }
+
+        .drop-target.completed .success-check {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .drop-icon {
+            transition: all 0.3s var(--ease-out-expo);
+        }
+
+        /* --- 结果面板 --- */
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            z-index: 10;
+            min-height: 120px;
+        }
+
+        /* --- BUTTONS --- */
+        .action-btn {
+            padding: 1rem 3rem;
+            border-radius: 100px;
+            background: var(--ink);
+            color: var(--bg);
+            border: none;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s var(--ease-out-expo);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+        }
+
+        .action-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.02);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(-90deg);
+            }
+
+            to {
+                transform: rotate(270deg);
+            }
+        }
+
+        .drop-target::before {
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .drop-target.processing::before {
+            animation: none;
+            opacity: 0;
+        }
+
+        .fade-in {
+            animation: slideUp 0.6s var(--ease-out-expo) forwards;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h1>标点。</h1>
+        <div class="mode-switcher">
+            <button class="mode-btn active" id="btn-text">文本</button>
+            <button class="mode-btn" id="btn-file">文档</button>
+        </div>
+    </nav>
+
+    <!-- MODE: TEXT -->
+    <div class="wrapper" id="view-text">
+        <div class="stage">
+            <div class="pane-left">
+                <span class="pane-label">输入 / 原文</span>
+                <textarea id="app-input" class="input-area" placeholder="在此粘贴文本。让逻辑完成剩余的工作。"></textarea>
+            </div>
+            <div class="pane-right">
+                <div class="pane-header">
+                    <span class="pane-label">输出 / 结果</span>
+                    <button id="btn-copy" class="copy-btn">复制结果</button>
+                </div>
+                <textarea id="app-output" class="input-area" readonly placeholder="等待输入..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODE: FILE -->
+    <div class="file-drop" id="view-file">
+        <!-- 模糊文字背景 -->
+        <div class="doc-preview-bg" id="preview-bg"></div>
+
+        <div class="drop-target" id="drop-zone">
+            <!-- 进度环 -->
+            <div class="progress-ring" id="progress-ring">
+                <svg viewBox="0 0 400 400">
+                    <circle cx="200" cy="200" r="199" id="progress-circle"></circle>
+                </svg>
+            </div>
+
+            <!-- 上传图标 -->
+            <div class="drop-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 5V19M12 5L6 11M12 5L18 11" stroke-linecap="square" />
+                </svg>
+            </div>
+
+            <!-- 成功图标 -->
+            <div class="success-check">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <div class="drop-label" id="drop-label">点击或拖拽 DOCX 文档</div>
+            <input type="file" id="file-input" hidden accept=".docx">
+        </div>
+
+        <!-- 结果面板 -->
+        <div class="result-panel" id="result-panel">
+            <div class="file-status" id="file-status"></div>
+
+            <!-- 统计数据 -->
+            <div class="convert-stats" id="convert-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-punct">0</span>
+                    <span class="stat-label">标点转换</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-para">0</span>
+                    <span class="stat-label">段落处理</span>
+                </div>
+            </div>
+
+            <button class="action-btn" id="dl-btn">下载处理后的文档</button>
+        </div>
+    </div>
+
+
+    <script>
+        /**
+         * CORE LOGIC: THE ENGINE
+         * Unchanged, because logic works. Design elevates it.
+         */
+        const PUNCT_MAP = {
+            ',': '，', '.': '。', ':': '：', ';': '；',
+            '?': '？', '!': '！', '(': '（', ')': '）'
+        };
+
+        function smartConvert(text) {
+            if (!text) return "";
+
+            text = text.replace(/([\u4e00-\u9fa5])\s*([,.:;?!])/g, (match, cn, punct) => cn + (PUNCT_MAP[punct] || punct));
+            text = text.replace(/([,.:;?!])\s*([\u4e00-\u9fa5])/g, (match, punct, cn) => (PUNCT_MAP[punct] || punct) + cn);
+
+            // Brackets
+            text = text.replace(/\(\s*([\u4e00-\u9fa5])/g, (match, cn) => '（' + cn);
+            text = text.replace(/([\u4e00-\u9fa5])\s*\)/g, (match, cn) => cn + '）');
+
+            // Quotes Toggling (Stateless Regex approach for simple text is weaker, 
+            // using the stateful approach from previous iteration is better for consistency)
+            text = processQuotesStateful(text, '"', '“', '”');
+            text = processQuotesStateful(text, "'", '‘', '’');
+
+            return text;
+        }
+
+        // Stateful quote processor for plain text
+        function processQuotesStateful(text, quote, open, close) {
+            let result = "";
+            let isOpen = false;
+            const isHan = (char) => /[\u4e00-\u9fa5]/.test(char);
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char === quote) {
+                    const prev = text[i - 1] || '';
+                    const next = text[i + 1] || '';
+                    const isChinese = isHan(prev) || isHan(next);
+
+                    if (isOpen) {
+                        result += close;
+                        isOpen = false;
+                    } else if (isChinese) {
+                        result += open;
+                        isOpen = true;
+                    } else {
+                        result += quote;
+                    }
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        /* --- INTERACTION --- */
+        const views = {
+            text: document.getElementById('view-text'),
+            file: document.getElementById('view-file')
+        };
+        const btns = {
+            text: document.getElementById('btn-text'),
+            file: document.getElementById('btn-file')
+        };
+
+        function switchView(mode) {
+            // Toggle view visibility
+            if (mode === 'text') {
+                views.text.style.display = 'flex';
+                views.file.classList.remove('active');
+            } else {
+                views.text.style.display = 'none';
+                views.file.classList.add('active');
+            }
+
+            // Toggle nav state
+            btns.text.classList.toggle('active', mode === 'text');
+            btns.file.classList.toggle('active', mode === 'file');
+        }
+
+        btns.text.onclick = () => switchView('text');
+        btns.file.onclick = () => switchView('file');
+
+        /* --- COPY FUNCTIONALITY --- */
+        const copyBtn = document.getElementById('btn-copy');
+        const outputArea = document.getElementById('app-output');
+
+        // Auto-show/hide copy button based on content
+        function updateCopyState() {
+            if (outputArea.value.trim().length > 0) {
+                copyBtn.classList.add('visible');
+            } else {
+                copyBtn.classList.remove('visible');
+            }
+        }
+
+        // Copy Action
+        copyBtn.onclick = async () => {
+            if (!outputArea.value) return;
+            try {
+                await navigator.clipboard.writeText(outputArea.value);
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = "已复制";
+                copyBtn.classList.add('copied');
+
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 1500);
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+        };
+
+        /* --- TEXT MODE --- */
+        const input = document.getElementById('app-input');
+        // const output = document.getElementById('app-output'); // outputArea is already defined above
+
+        input.addEventListener('input', () => {
+            outputArea.value = smartConvert(input.value);
+            updateCopyState();
+        });
+
+        /* --- FILE MODE --- */
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const status = document.getElementById('file-status');
+        const dlBtn = document.getElementById('dl-btn');
+        const previewBg = document.getElementById('preview-bg');
+        const progressRing = document.getElementById('progress-ring');
+        const progressCircle = document.getElementById('progress-circle');
+        const convertStats = document.getElementById('convert-stats');
+        const statPunct = document.getElementById('stat-punct');
+        const statPara = document.getElementById('stat-para');
+        const dropLabel = document.getElementById('drop-label');
+
+        let dlBlob = null;
+        let dlName = "";
+
+        // 重置UI状态
+        function resetFileUI() {
+            dropZone.classList.remove('processing', 'completed');
+            previewBg.classList.remove('visible');
+            previewBg.textContent = '';
+            progressRing.classList.remove('visible');
+            progressCircle.style.strokeDashoffset = '1256';
+            convertStats.classList.remove('visible');
+            dlBtn.classList.remove('visible');
+            status.textContent = '';
+            dropLabel.textContent = '点击或拖拽 DOCX 文档';
+            statPunct.textContent = '0';
+            statPara.textContent = '0';
+        }
+
+        // 更新进度环
+        function updateProgress(percent) {
+            const circumference = 1256; // 2 * PI * 199
+            const offset = circumference - (percent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        dropZone.onclick = () => {
+            if (dropZone.classList.contains('completed')) {
+                resetFileUI();
+            }
+            fileInput.click();
+        };
+
+        // Drag effects
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragging'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('dragging');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragging');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        };
+        fileInput.onchange = (e) => { if (e.target.files.length) handleFile(e.target.files[0]); };
+
+        async function handleFile(file) {
+            // 重置并开始处理
+            resetFileUI();
+            dropZone.classList.add('processing');
+            progressRing.classList.add('visible');
+            status.textContent = "正在解析文档结构...";
+            status.style.opacity = 1;
+            dropLabel.textContent = '';
+
+            let totalPunctChanges = 0;
+            let totalParaProcessed = 0;
+            let previewText = '';
+
+            try {
+                updateProgress(10);
+                const zip = await JSZip.loadAsync(file);
+                const xmlFiles = [];
+                zip.forEach((path) => { if (path.endsWith('.xml')) xmlFiles.push(path); });
+
+                updateProgress(20);
+                status.textContent = "正在分析中文语境...";
+
+                // DOM Based logic
+                for (let fileIdx = 0; fileIdx < xmlFiles.length; fileIdx++) {
+                    const path = xmlFiles[fileIdx];
+                    const content = await zip.file(path).async("string");
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(content, "text/xml");
+                    const paragraphs = xmlDoc.getElementsByTagName("w:p");
+
+                    let hasChanges = false;
+
+                    for (let i = 0; i < paragraphs.length; i++) {
+                        const p = paragraphs[i];
+                        const textNodes = p.getElementsByTagName("w:t");
+                        if (!textNodes.length) continue;
+
+                        let fullText = "";
+                        const mapping = [];
+                        for (let t = 0; t < textNodes.length; t++) {
+                            const node = textNodes[t];
+                            const txt = node.textContent;
+                            for (let c = 0; c < txt.length; c++) mapping.push({ node, idx: c });
+                            fullText += txt;
+                        }
+
+                        // 提取预览文字（仅从document.xml）
+                        if (path.includes('document.xml') && previewText.length < 400) {
+                            previewText += fullText + ' ';
+                        }
+
+                        // 统计段落
+                        if (fullText.trim().length > 0) {
+                            totalParaProcessed++;
+                        }
+
+                        // Simple Punctuation
+                        const patterns = [
+                            { r: /([\u4e00-\u9fa5])\s*([,.:;?!])/g, off: 1, map: PUNCT_MAP },
+                            { r: /([,.:;?!])\s*([\u4e00-\u9fa5])/g, off: 0, map: PUNCT_MAP },
+                            { r: /\(\s*([\u4e00-\u9fa5])/g, off: 0, rep: '（' },
+                            { r: /([\u4e00-\u9fa5])\s*\)/g, off: 1, rep: '）' }
+                        ];
+
+                        patterns.forEach(pat => {
+                            let m; pat.r.lastIndex = 0;
+                            while (m = pat.r.exec(fullText)) {
+                                const targetIdx = pat.off === 0 ? m.index : (m.index + m[0].length - 1);
+                                const rep = pat.map ? pat.map[pat.off === 0 ? m[1] : m[2]] : pat.rep;
+                                modify(targetIdx, rep, mapping);
+                                hasChanges = true;
+                                totalPunctChanges++;
+                            }
+                        });
+
+                        // Quotes
+                        const quoteChanges1 = processQuoteInPlace(fullText, '"', '\u201c', '\u201d', mapping);
+                        const quoteChanges2 = processQuoteInPlace(fullText, "'", '\u2018', '\u2019', mapping);
+                        if (quoteChanges1) { hasChanges = true; totalPunctChanges += quoteChanges1; }
+                        if (quoteChanges2) { hasChanges = true; totalPunctChanges += quoteChanges2; }
+                    }
+
+                    if (hasChanges) {
+                        zip.file(path, new XMLSerializer().serializeToString(xmlDoc));
+                    }
+
+                    // 更新进度
+                    const progress = 20 + (fileIdx + 1) / xmlFiles.length * 60;
+                    updateProgress(progress);
+                }
+
+                status.textContent = "正在生成新文档...";
+                updateProgress(90);
+
+                dlBlob = await zip.generateAsync({ type: "blob" });
+                dlName = "已转换_" + file.name;
+
+                updateProgress(100);
+
+                // 显示预览背景
+                if (previewText.trim()) {
+                    previewBg.textContent = previewText.trim().slice(0, 400);
+                    setTimeout(() => previewBg.classList.add('visible'), 100);
+                }
+
+                // 完成状态
+                dropZone.classList.remove('processing');
+                dropZone.classList.add('completed');
+                progressRing.classList.remove('visible');
+
+                status.textContent = file.name;
+
+                // 显示统计数据
+                statPunct.textContent = totalPunctChanges;
+                statPara.textContent = totalParaProcessed;
+                setTimeout(() => convertStats.classList.add('visible'), 200);
+
+                dlBtn.textContent = "下载处理后的文档";
+                setTimeout(() => dlBtn.classList.add('visible'), 400);
+
+            } catch (e) {
+                console.error(e);
+                dropZone.classList.remove('processing');
+                progressRing.classList.remove('visible');
+                status.textContent = "文档结构不兼容。";
+            }
+        }
+
+
+        function modify(idx, char, map) {
+            if (idx >= 0 && idx < map.length) {
+                const { node, idx: nIdx } = map[idx];
+                const arr = node.textContent.split('');
+                if (arr[nIdx] !== char) {
+                    arr[nIdx] = char;
+                    node.textContent = arr.join('');
+                }
+            }
+        }
+
+        function processQuoteInPlace(text, quote, open, close, map) {
+            let changeCount = 0;
+            let isOpen = false;
+            const isHan = (c) => /[\u4e00-\u9fa5]/.test(c);
+
+            for (let i = 0; i < text.length; i++) {
+                if (text[i] === quote) {
+                    const prev = text[i - 1] || '';
+                    const next = text[i + 1] || '';
+                    const cnCtx = isHan(prev) || isHan(next);
+
+                    if (isOpen) {
+                        modify(i, close, map);
+                        isOpen = false;
+                        changeCount++;
+                    } else if (cnCtx) {
+                        modify(i, open, map);
+                        isOpen = true;
+                        changeCount++;
+                    }
+                }
+            }
+            return changeCount;
+        }
+
+        dlBtn.onclick = () => saveAs(dlBlob, dlName);
+
+    </script>
+</body>
+
+</html>
