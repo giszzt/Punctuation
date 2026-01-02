@@ -84,14 +84,12 @@
 
         /* --- TYPOGRAPHY --- */
         h1 {
-            font-size: 14px;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            font-family: var(--font-mono);
-            font-weight: 500;
-            color: var(--ink-secondary);
+            font-size: 1.5rem;
+            letter-spacing: 0.05em;
+            font-family: var(--font-serif);
+            font-weight: 400;
+            color: var(--ink);
             margin-bottom: 0;
-            /* Fixed: Removed large margin that blocked clicks */
         }
 
         .hero-text {
@@ -161,7 +159,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 8rem 3rem 3rem;
+            padding: 6rem 3rem 3rem;
             position: relative;
             transition: transform 0.6s var(--ease-out-expo);
         }
@@ -177,41 +175,42 @@
             border: none;
             background: transparent;
             font-family: var(--font-serif);
-            font-size: 1.25rem;
-            line-height: 1.8;
+            font-size: 1.125rem;
+            line-height: 1.9;
             color: var(--ink);
             resize: none;
             outline: none;
-            opacity: 0.8;
+            opacity: 0.85;
             transition: opacity 0.3s;
+            margin-top: 0.5rem;
         }
 
         .input-area::placeholder {
             color: var(--ink-tertiary);
             font-weight: 300;
+            font-size: 1rem;
         }
 
         .input-area:focus {
             opacity: 1;
         }
 
+        /* 面板标签 - 功能性标题 */
         .pane-label {
-            /* Removed absolute position to allow flex flow in header */
-            position: static;
             font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--ink-tertiary);
-            letter-spacing: 0.05em;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-secondary);
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
         }
 
+        /* 面板头部 - 统一定位 */
         .pane-header {
-            position: absolute;
-            top: 6rem;
-            left: 3rem;
-            right: 3rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
         }
 
         .copy-btn {
@@ -418,11 +417,53 @@
             opacity: 0;
             transform: scale(0.5);
             transition: all 0.5s var(--ease-out-expo);
+            color: #22c55e;
         }
 
         .drop-target.completed .success-check {
             opacity: 1;
             transform: scale(1);
+            animation: successBounce 0.6s var(--ease-out-expo);
+        }
+
+        @keyframes successBounce {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 失败状态 */
+        .drop-target.error {
+            border-color: #ef4444;
+        }
+
+        .drop-target.error .drop-icon {
+            color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
         }
 
         .drop-icon {
@@ -518,6 +559,247 @@
         .fade-in {
             animation: slideUp 0.6s var(--ease-out-expo) forwards;
         }
+
+        /* --- 拖拽涟漪效果 --- */
+        .drop-target.dragging::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--ink) 0%, transparent 70%);
+            animation: ripple 1.5s ease-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.15;
+            }
+
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* --- 响应式设计 --- */
+        @media (max-width: 768px) {
+            nav {
+                left: 1.5rem;
+                right: 1.5rem;
+                top: 1.5rem;
+            }
+
+            h1 {
+                font-size: 12px;
+            }
+
+            .mode-btn {
+                font-size: 12px;
+            }
+
+            .mode-switcher {
+                gap: 1rem;
+            }
+
+            .stage {
+                flex-direction: column;
+            }
+
+            .pane-left,
+            .pane-right {
+                flex: none;
+                height: 50%;
+                padding: 5rem 1.5rem 1.5rem;
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .pane-right {
+                border-bottom: none;
+            }
+
+            .pane-header {
+                left: 1.5rem;
+                right: 1.5rem;
+                top: 4.5rem;
+            }
+
+            .input-area {
+                font-size: 1rem;
+            }
+
+            .drop-target {
+                width: 260px;
+                height: 260px;
+            }
+
+            .result-panel {
+                margin-top: 1.5rem;
+            }
+
+            .convert-stats {
+                gap: 2.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .action-btn {
+                padding: 0.875rem 2rem;
+                font-size: 13px;
+            }
+        }
+
+        /* --- 快捷键提示 --- */
+        .shortcut-hint {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--ink-tertiary);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .shortcut-hint {
+                display: none;
+            }
+        }
+
+        /* --- 设置面板 --- */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .settings-btn {
+            background: none;
+            border: none;
+            color: var(--ink-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.3s;
+        }
+
+        .settings-btn:hover {
+            color: var(--ink);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: 0;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s var(--ease-out-expo);
+            min-width: 320px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .settings-panel.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--line);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--ink-tertiary);
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .settings-close:hover {
+            color: var(--ink);
+        }
+
+        .settings-body {
+            padding: 1rem 1.5rem 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .rule-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .rule-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .rule-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--ink);
+            cursor: pointer;
+        }
+
+        .toggle-label {
+            font-family: var(--font-serif);
+            font-size: 14px;
+            color: var(--ink-secondary);
+        }
+
+        .toggle-label code {
+            font-family: var(--font-mono);
+            background: var(--accent-soft);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+
+        .settings-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .settings-overlay {
+                background: rgba(0, 0, 0, 0.6);
+            }
+        }
     </style>
 </head>
 
@@ -525,23 +807,85 @@
 
     <nav>
         <h1>标点。</h1>
-        <div class="mode-switcher">
-            <button class="mode-btn active" id="btn-text">文本</button>
-            <button class="mode-btn" id="btn-file">文档</button>
+        <div class="nav-right">
+            <button class="settings-btn" id="btn-settings" aria-label="设置">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+            </button>
+            <div class="mode-switcher">
+                <button class="mode-btn active" id="btn-text">文本</button>
+                <button class="mode-btn" id="btn-file">文档</button>
+            </div>
         </div>
     </nav>
+
+    <!-- 设置面板 -->
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-header">
+            <span>转换规则设置</span>
+            <button class="settings-close" id="settings-close" aria-label="关闭设置">×</button>
+        </div>
+        <div class="settings-body">
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-comma" checked>
+                <span class="toggle-label">逗号 <code>,</code> → <code>，</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-period" checked>
+                <span class="toggle-label">句号 <code>.</code> → <code>。</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-colon" checked>
+                <span class="toggle-label">冒号 <code>:</code> → <code>：</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-semicolon" checked>
+                <span class="toggle-label">分号 <code>;</code> → <code>；</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-question" checked>
+                <span class="toggle-label">问号 <code>?</code> → <code>？</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-exclaim" checked>
+                <span class="toggle-label">感叹号 <code>!</code> → <code>！</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-quotes" checked>
+                <span class="toggle-label">引号 <code>""</code> → <code>""</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-brackets" checked>
+                <span class="toggle-label">括号 <code>()</code> → <code>（）</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-ellipsis" checked>
+                <span class="toggle-label">省略号 <code>...</code> → <code>……</code></span>
+            </label>
+            <label class="rule-toggle">
+                <input type="checkbox" id="rule-dash" checked>
+                <span class="toggle-label">破折号 <code>--</code> → <code>——</code></span>
+            </label>
+        </div>
+    </div>
+    <div class="settings-overlay" id="settings-overlay"></div>
 
     <!-- MODE: TEXT -->
     <div class="wrapper" id="view-text">
         <div class="stage">
             <div class="pane-left">
-                <span class="pane-label">输入 / 原文</span>
-                <textarea id="app-input" class="input-area" placeholder="在此粘贴文本。让逻辑完成剩余的工作。"></textarea>
+                <div class="pane-header">
+                    <span class="pane-label">输入 / 原文</span>
+                </div>
+                <textarea id="app-input" class="input-area" placeholder="在此粘贴文本…"></textarea>
             </div>
             <div class="pane-right">
                 <div class="pane-header">
                     <span class="pane-label">输出 / 结果</span>
-                    <button id="btn-copy" class="copy-btn">复制结果</button>
+                    <button id="btn-copy" class="copy-btn" aria-label="复制转换结果">复制结果</button>
                 </div>
                 <textarea id="app-output" class="input-area" readonly placeholder="等待输入..."></textarea>
             </div>
@@ -553,7 +897,7 @@
         <!-- 模糊文字背景 -->
         <div class="doc-preview-bg" id="preview-bg"></div>
 
-        <div class="drop-target" id="drop-zone">
+        <div class="drop-target" id="drop-zone" role="button" aria-label="点击或拖拽上传文档" tabindex="0">
             <!-- 进度环 -->
             <div class="progress-ring" id="progress-ring">
                 <svg viewBox="0 0 400 400">
@@ -575,13 +919,13 @@
                 </svg>
             </div>
 
-            <div class="drop-label" id="drop-label">点击或拖拽 DOCX 文档</div>
-            <input type="file" id="file-input" hidden accept=".docx">
+            <div class="drop-label" id="drop-label">拖拽或点击上传</div>
+            <input type="file" id="file-input" hidden accept=".docx,.txt,.md" multiple>
         </div>
 
         <!-- 结果面板 -->
         <div class="result-panel" id="result-panel">
-            <div class="file-status" id="file-status"></div>
+            <div class="file-status" id="file-status" role="status" aria-live="polite"></div>
 
             <!-- 统计数据 -->
             <div class="convert-stats" id="convert-stats">
@@ -595,35 +939,89 @@
                 </div>
             </div>
 
-            <button class="action-btn" id="dl-btn">下载处理后的文档</button>
+            <button class="action-btn" id="dl-btn" aria-label="下载处理后的文档">下载处理后的文档</button>
         </div>
     </div>
 
+    <!-- 快捷键提示 -->
+    <div class="shortcut-hint" id="shortcut-hint">
+        Ctrl+Shift+C 复制结果
+    </div>
 
     <script>
         /**
          * CORE LOGIC: THE ENGINE
-         * Unchanged, because logic works. Design elevates it.
+         * Supports dynamic rule configuration
          */
         const PUNCT_MAP = {
             ',': '，', '.': '。', ':': '：', ';': '；',
             '?': '？', '!': '！', '(': '（', ')': '）'
         };
 
+        // 规则配置（动态）
+        const ruleConfig = {
+            comma: true, period: true, colon: true, semicolon: true,
+            question: true, exclaim: true, quotes: true, brackets: true,
+            ellipsis: true, dash: true
+        };
+
+        // 从localStorage加载规则
+        function loadRules() {
+            const saved = localStorage.getItem('punctuation-rules');
+            if (saved) Object.assign(ruleConfig, JSON.parse(saved));
+        }
+
+        // 保存规则到localStorage
+        function saveRules() {
+            localStorage.setItem('punctuation-rules', JSON.stringify(ruleConfig));
+        }
+
+        loadRules();
+
         function smartConvert(text) {
             if (!text) return "";
 
-            text = text.replace(/([\u4e00-\u9fa5])\s*([,.:;?!])/g, (match, cn, punct) => cn + (PUNCT_MAP[punct] || punct));
-            text = text.replace(/([,.:;?!])\s*([\u4e00-\u9fa5])/g, (match, punct, cn) => (PUNCT_MAP[punct] || punct) + cn);
+            // 省略号转换
+            if (ruleConfig.ellipsis) {
+                text = text.replace(/([\u4e00-\u9fa5])\.{3}/g, (m, cn) => cn + '……');
+                text = text.replace(/\.{3}([\u4e00-\u9fa5])/g, (m, cn) => '……' + cn);
+            }
 
-            // Brackets
-            text = text.replace(/\(\s*([\u4e00-\u9fa5])/g, (match, cn) => '（' + cn);
-            text = text.replace(/([\u4e00-\u9fa5])\s*\)/g, (match, cn) => cn + '）');
+            // 破折号转换
+            if (ruleConfig.dash) {
+                text = text.replace(/([\u4e00-\u9fa5])--/g, (m, cn) => cn + '——');
+                text = text.replace(/--([\u4e00-\u9fa5])/g, (m, cn) => '——' + cn);
+            }
 
-            // Quotes Toggling (Stateless Regex approach for simple text is weaker, 
-            // using the stateful approach from previous iteration is better for consistency)
-            text = processQuotesStateful(text, '"', '“', '”');
-            text = processQuotesStateful(text, "'", '‘', '’');
+            // 基础标点转换
+            const activeMap = {};
+            if (ruleConfig.comma) activeMap[','] = '，';
+            if (ruleConfig.period) activeMap['.'] = '。';
+            if (ruleConfig.colon) activeMap[':'] = '：';
+            if (ruleConfig.semicolon) activeMap[';'] = '；';
+            if (ruleConfig.question) activeMap['?'] = '？';
+            if (ruleConfig.exclaim) activeMap['!'] = '！';
+
+            const keys = Object.keys(activeMap);
+            if (keys.length) {
+                const pat = keys.map(p => '\\' + p).join('');
+                text = text.replace(new RegExp(`([\\u4e00-\\u9fa5])\\s*([${pat}])`, 'g'),
+                    (m, cn, p) => cn + (activeMap[p] || p));
+                text = text.replace(new RegExp(`([${pat}])\\s*([\\u4e00-\\u9fa5])`, 'g'),
+                    (m, p, cn) => (activeMap[p] || p) + cn);
+            }
+
+            // 括号
+            if (ruleConfig.brackets) {
+                text = text.replace(/\(\s*([\u4e00-\u9fa5])/g, (m, cn) => '（' + cn);
+                text = text.replace(/([\u4e00-\u9fa5])\s*\)/g, (m, cn) => cn + '）');
+            }
+
+            // 引号
+            if (ruleConfig.quotes) {
+                text = processQuotesStateful(text, '"', '\u201c', '\u201d');
+                text = processQuotesStateful(text, "'", '\u2018', '\u2019');
+            }
 
             return text;
         }
@@ -680,10 +1078,23 @@
             // Toggle nav state
             btns.text.classList.toggle('active', mode === 'text');
             btns.file.classList.toggle('active', mode === 'file');
+
+            // 更新快捷键提示
+            const hint = document.getElementById('shortcut-hint');
+            hint.textContent = mode === 'text' ? 'Ctrl+Shift+C 复制结果' : '';
+
+            // 保存用户偏好
+            localStorage.setItem('punctuation-mode', mode);
         }
 
         btns.text.onclick = () => switchView('text');
         btns.file.onclick = () => switchView('file');
+
+        // 启动时恢复用户偏好
+        const savedMode = localStorage.getItem('punctuation-mode');
+        if (savedMode === 'file') {
+            switchView('file');
+        }
 
         /* --- COPY FUNCTIONALITY --- */
         const copyBtn = document.getElementById('btn-copy');
@@ -751,7 +1162,7 @@
             convertStats.classList.remove('visible');
             dlBtn.classList.remove('visible');
             status.textContent = '';
-            dropLabel.textContent = '点击或拖拽 DOCX 文档';
+            dropLabel.textContent = '拖拽或点击上传';
             statPunct.textContent = '0';
             statPara.textContent = '0';
         }
@@ -761,6 +1172,39 @@
             const circumference = 1256; // 2 * PI * 199
             const offset = circumference - (percent / 100) * circumference;
             progressCircle.style.strokeDashoffset = offset;
+        }
+
+        // 计数器动画
+        function animateCount(el, target, duration = 800) {
+            const start = 0;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // easeOutCubic
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(start + (target - start) * eased);
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // 进度阶段
+        const PROGRESS_STAGES = {
+            10: '正在读取文件...',
+            20: '正在解析文档结构...',
+            40: '正在分析中文语境...',
+            70: '正在转换标点符号...',
+            90: '正在生成新文档...',
+            100: '处理完成！'
+        };
+
+        function updateProgressWithText(percent) {
+            updateProgress(percent);
+            if (PROGRESS_STAGES[percent]) {
+                status.textContent = PROGRESS_STAGES[percent];
+            }
         }
 
         dropZone.onclick = () => {
@@ -776,9 +1220,130 @@
         dropZone.ondrop = (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragging');
-            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            if (e.dataTransfer.files.length > 1) {
+                handleMultipleFiles(e.dataTransfer.files);
+            } else if (e.dataTransfer.files.length === 1) {
+                handleFile(e.dataTransfer.files[0]);
+            }
         };
-        fileInput.onchange = (e) => { if (e.target.files.length) handleFile(e.target.files[0]); };
+        fileInput.onchange = (e) => {
+            if (e.target.files.length > 1) {
+                handleMultipleFiles(e.target.files);
+            } else if (e.target.files.length === 1) {
+                handleFile(e.target.files[0]);
+            }
+        };
+
+        // 批量文件处理
+        async function handleMultipleFiles(files) {
+            resetFileUI();
+            dropZone.classList.add('processing');
+            progressRing.classList.add('visible');
+            status.style.opacity = 1;
+            dropLabel.textContent = '';
+
+            const zip = new JSZip();
+            let totalPunct = 0, totalPara = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                status.textContent = `处理中 (${i + 1}/${files.length}): ${file.name}`;
+                updateProgress((i / files.length) * 80 + 10);
+
+                try {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    let blob, counts;
+
+                    if (ext === 'txt' || ext === 'md') {
+                        const text = await file.text();
+                        const converted = smartConvert(text);
+                        blob = new Blob([converted], { type: 'text/plain' });
+                        counts = { punct: countChanges(text, converted), para: (text.match(/\n/g) || []).length + 1 };
+                    } else {
+                        // DOCX处理 - 使用段落级处理方式（与单文件一致）
+                        const docZip = await JSZip.loadAsync(file);
+                        let pCount = 0, paraCount = 0;
+
+                        for (const path of Object.keys(docZip.files)) {
+                            if (path.endsWith('.xml')) {
+                                const content = await docZip.file(path).async('string');
+                                const parser = new DOMParser();
+                                const xmlDoc = parser.parseFromString(content, 'text/xml');
+                                const paragraphs = xmlDoc.getElementsByTagName('w:p');
+                                let hasChanges = false;
+
+                                for (let pi = 0; pi < paragraphs.length; pi++) {
+                                    const p = paragraphs[pi];
+                                    const textNodes = p.getElementsByTagName('w:t');
+                                    if (!textNodes.length) continue;
+
+                                    // 收集整个段落的文本和映射
+                                    let fullText = '';
+                                    const mapping = [];
+                                    for (let t = 0; t < textNodes.length; t++) {
+                                        const node = textNodes[t];
+                                        const txt = node.textContent;
+                                        for (let c = 0; c < txt.length; c++) {
+                                            mapping.push({ node, idx: c });
+                                        }
+                                        fullText += txt;
+                                    }
+
+                                    if (!fullText.trim()) continue;
+                                    paraCount++;
+
+                                    // 转换整个段落文本
+                                    const converted = smartConvert(fullText);
+
+                                    // 如果有变化，映射回各节点
+                                    if (converted !== fullText && converted.length === fullText.length) {
+                                        for (let i = 0; i < converted.length; i++) {
+                                            if (converted[i] !== fullText[i]) {
+                                                const { node, idx } = mapping[i];
+                                                const arr = node.textContent.split('');
+                                                arr[idx] = converted[i];
+                                                node.textContent = arr.join('');
+                                                pCount++;
+                                                hasChanges = true;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (hasChanges) {
+                                    docZip.file(path, new XMLSerializer().serializeToString(xmlDoc));
+                                }
+                            }
+                        }
+                        blob = await docZip.generateAsync({ type: 'blob' });
+                        counts = { punct: pCount, para: paraCount };
+                    }
+
+                    zip.file('已转换_' + file.name, blob);
+                    totalPunct += counts.punct;
+                    totalPara += counts.para;
+                } catch (err) {
+                    console.error(`处理 ${file.name} 失败:`, err);
+                }
+            }
+
+            updateProgress(90);
+            status.textContent = '正在打包...';
+
+            dlBlob = await zip.generateAsync({ type: 'blob' });
+            dlName = `批量转换_${files.length}个文件.zip`;
+
+            updateProgress(100);
+            showCompletedState(`${files.length} 个文件`, '', totalPunct, totalPara);
+        }
+
+        function countChanges(original, converted) {
+            let count = 0;
+            for (let i = 0; i < Math.min(original.length, converted.length); i++) {
+                if (original[i] !== converted[i]) count++;
+            }
+            return count;
+        }
 
         async function handleFile(file) {
             // 重置并开始处理
@@ -793,14 +1358,51 @@
             let totalParaProcessed = 0;
             let previewText = '';
 
+            // 获取文件扩展名
+            const ext = file.name.split('.').pop().toLowerCase();
+
             try {
-                updateProgress(10);
+                updateProgressWithText(10);
+
+                // TXT 或 MD 文件处理
+                if (ext === 'txt' || ext === 'md') {
+                    updateProgressWithText(20);
+                    const text = await file.text();
+                    const originalText = text;
+
+                    updateProgressWithText(40);
+                    const convertedText = smartConvert(text);
+
+                    // 统计变化
+                    for (let i = 0; i < Math.min(originalText.length, convertedText.length); i++) {
+                        if (originalText[i] !== convertedText[i]) {
+                            totalPunctChanges++;
+                        }
+                    }
+                    totalParaProcessed = (text.match(/\n/g) || []).length + 1;
+                    previewText = convertedText.slice(0, 400);
+
+                    updateProgressWithText(70);
+                    updateProgressWithText(90);
+
+                    // 生成下载文件
+                    dlBlob = new Blob([convertedText], { type: 'text/plain;charset=utf-8' });
+                    dlName = "已转换_" + file.name;
+
+                    updateProgressWithText(100);
+
+                    // 显示完成状态
+                    showCompletedState(file.name, previewText, totalPunctChanges, totalParaProcessed);
+                    return;
+                }
+
+                // DOCX 文件处理
+                updateProgressWithText(10);
                 const zip = await JSZip.loadAsync(file);
                 const xmlFiles = [];
                 zip.forEach((path) => { if (path.endsWith('.xml')) xmlFiles.push(path); });
 
-                updateProgress(20);
-                status.textContent = "正在分析中文语境...";
+                updateProgressWithText(20);
 
                 // DOM Based logic
                 for (let fileIdx = 0; fileIdx < xmlFiles.length; fileIdx++) {
@@ -867,47 +1469,60 @@
                     }
 
                     // 更新进度
-                    const progress = 20 + (fileIdx + 1) / xmlFiles.length * 60;
-                    updateProgress(progress);
+                    const progress = 40 + Math.round((fileIdx + 1) / xmlFiles.length * 30);
+                    updateProgressWithText(progress >= 70 ? 70 : progress);
                 }
 
-                status.textContent = "正在生成新文档...";
-                updateProgress(90);
+                updateProgressWithText(90);
 
                 dlBlob = await zip.generateAsync({ type: "blob" });
                 dlName = "已转换_" + file.name;
 
-                updateProgress(100);
+                updateProgressWithText(100);
 
-                // 显示预览背景
-                if (previewText.trim()) {
-                    previewBg.textContent = previewText.trim().slice(0, 400);
-                    setTimeout(() => previewBg.classList.add('visible'), 100);
-                }
-
-                // 完成状态
-                dropZone.classList.remove('processing');
-                dropZone.classList.add('completed');
-                progressRing.classList.remove('visible');
-
-                status.textContent = file.name;
-
-                // 显示统计数据
-                statPunct.textContent = totalPunctChanges;
-                statPara.textContent = totalParaProcessed;
-                setTimeout(() => convertStats.classList.add('visible'), 200);
-
-                dlBtn.textContent = "下载处理后的文档";
-                setTimeout(() => dlBtn.classList.add('visible'), 400);
+                // 显示完成状态
+                showCompletedState(file.name, previewText, totalPunctChanges, totalParaProcessed);
 
             } catch (e) {
                 console.error(e);
                 dropZone.classList.remove('processing');
+                dropZone.classList.add('error');
                 progressRing.classList.remove('visible');
-                status.textContent = "文档结构不兼容。";
+                status.textContent = "处理失败：文档结构不兼容";
+
+                // 3秒后重置错误状态
+                setTimeout(() => {
+                    dropZone.classList.remove('error');
+                    resetFileUI();
+                }, 3000);
             }
         }
 
+        // 显示完成状态的辅助函数
+        function showCompletedState(fileName, previewText, punctCount, paraCount) {
+            // 显示预览背景
+            if (previewText && previewText.trim()) {
+                previewBg.textContent = previewText.trim().slice(0, 400);
+                setTimeout(() => previewBg.classList.add('visible'), 100);
+            }
+
+            // 完成状态
+            dropZone.classList.remove('processing');
+            dropZone.classList.add('completed');
+            progressRing.classList.remove('visible');
+
+            status.textContent = fileName;
+
+            // 显示统计数据（带动画）
+            setTimeout(() => {
+                convertStats.classList.add('visible');
+                animateCount(statPunct, punctCount);
+                animateCount(statPara, paraCount);
+            }, 200);
+
+            dlBtn.textContent = "下载处理后的文档";
+            setTimeout(() => dlBtn.classList.add('visible'), 400);
+        }
 
         function modify(idx, char, map) {
             if (idx >= 0 && idx < map.length) {
@@ -946,6 +1561,90 @@
         }
 
         dlBtn.onclick = () => saveAs(dlBlob, dlName);
+
+        /* --- 快捷键支持 --- */
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Shift+C: 复制结果
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                if (outputArea.value) {
+                    copyBtn.click();
+                }
+            }
+
+            // Escape: 聚焦输入框
+            if (e.key === 'Escape') {
+                input.focus();
+            }
+        });
+
+        // 更新快捷键提示根据模式
+        const shortcutHint = document.getElementById('shortcut-hint');
+        function updateShortcutHint(mode) {
+            shortcutHint.textContent = mode === 'text' ? 'Ctrl+Shift+C 复制结果' : '';
+        }
+
+        /* --- 设置面板 --- */
+        const settingsBtn = document.getElementById('btn-settings');
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsClose = document.getElementById('settings-close');
+        const settingsOverlay = document.getElementById('settings-overlay');
+
+        function openSettings() {
+            settingsPanel.classList.add('active');
+            settingsOverlay.classList.add('active');
+            syncSettingsUI();
+        }
+
+        function closeSettings() {
+            settingsPanel.classList.remove('active');
+            settingsOverlay.classList.remove('active');
+        }
+
+        // 同步设置UI与ruleConfig
+        function syncSettingsUI() {
+            document.getElementById('rule-comma').checked = ruleConfig.comma;
+            document.getElementById('rule-period').checked = ruleConfig.period;
+            document.getElementById('rule-colon').checked = ruleConfig.colon;
+            document.getElementById('rule-semicolon').checked = ruleConfig.semicolon;
+            document.getElementById('rule-question').checked = ruleConfig.question;
+            document.getElementById('rule-exclaim').checked = ruleConfig.exclaim;
+            document.getElementById('rule-quotes').checked = ruleConfig.quotes;
+            document.getElementById('rule-brackets').checked = ruleConfig.brackets;
+            document.getElementById('rule-ellipsis').checked = ruleConfig.ellipsis;
+            document.getElementById('rule-dash').checked = ruleConfig.dash;
+        }
+
+        // 规则开关事件
+        const ruleMap = {
+            'rule-comma': 'comma', 'rule-period': 'period', 'rule-colon': 'colon',
+            'rule-semicolon': 'semicolon', 'rule-question': 'question', 'rule-exclaim': 'exclaim',
+            'rule-quotes': 'quotes', 'rule-brackets': 'brackets', 'rule-ellipsis': 'ellipsis',
+            'rule-dash': 'dash'
+        };
+
+        Object.keys(ruleMap).forEach(id => {
+            document.getElementById(id).addEventListener('change', (e) => {
+                ruleConfig[ruleMap[id]] = e.target.checked;
+                saveRules();
+                // 实时更新文本模式输出
+                if (input.value) {
+                    outputArea.value = smartConvert(input.value);
+                }
+            });
+        });
+
+        settingsBtn.onclick = openSettings;
+        settingsClose.onclick = closeSettings;
+        settingsOverlay.onclick = closeSettings;
+
+        // Escape关闭设置面板
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && settingsPanel.classList.contains('active')) {
+                closeSettings();
+                e.stopPropagation();
+            }
+        });
 
     </script>
 </body>
