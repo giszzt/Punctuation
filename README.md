@@ -76,6 +76,20 @@ npx http-server -p 8080
 3. 等待处理完成
 4. 点击"下载处理后的文档"
 
+### Word 插件 (VBA 宏)
+
+我们提供了一个 Word VBA 宏脚本，让您可以在 Word 中直接一键转换标点。
+
+1. **获取代码**：在仓库中找到 `PunctuationConverter.bas` 文件。
+2. **导入 Word**：
+   - 在 Word 中按 `Alt + F11` 打开 VBA 编辑器。
+   - 选择菜单 `文件` -> `导入文件`，选择 `PunctuationConverter.bas`。
+   - 或者：选择 `插入` -> `模块`，然后将代码复制粘贴进去。
+3. **运行**：
+   - 按 `Alt + F8` 打开宏列表。
+   - 选择 `ConvertPunctuation` 并点击运行。
+
+
 ## 📄 License
 
 MIT License
