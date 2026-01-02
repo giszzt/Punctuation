@@ -78,7 +78,7 @@ npx http-server -p 8080
 
 ### Word 插件 (VBA 宏)
 
-我们提供了一个 Word VBA 宏脚本，让您可以在 Word 中直接一键转换标点。
+顺带做了一个 Word VBA 宏脚本，可以在 Word 中直接一键转换标点。
 
 1. **获取代码**：在仓库中找到 `PunctuationConverter.bas` 文件。
 2. **导入 Word**：
